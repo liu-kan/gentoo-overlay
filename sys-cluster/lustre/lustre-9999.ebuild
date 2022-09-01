@@ -37,7 +37,7 @@ EGIT_REPO_URI="git://git.whamcloud.com/fs/lustre-release.git"
 # unpacked) inside ${WORKDIR}.  The default value for S is ${WORKDIR}/${P}
 # If you don't need to change it, leave the S= line out of the ebuild
 # to keep it tidy.
-#S="${WORKDIR}/${P}"
+S="${WORKDIR}/${P}"
 
 
 # License of the package.  This must match the name of file(s) in the
