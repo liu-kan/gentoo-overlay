@@ -2,7 +2,7 @@
 <!DOCTYPE repositories SYSTEM "/dtd/repositories.dtd">
 <repositories xmlns="" version="1.0">
   <repo quality="experimental" status="unofficial">
-    <name><![CDATA[liuk-overlay]]></name>
+    <name><![CDATA[liuk]]></name>
     <description lang="en"><![CDATA[K.Liu Overlay]]></description>
     <homepage>http://github.com/liu-kan/gentoo-overlay</homepage>
     <owner type="person">
