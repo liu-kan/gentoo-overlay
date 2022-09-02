@@ -79,12 +79,16 @@ KEYWORDS="~amd64"
 # Comprehensive list of any and all USE flags leveraged in the ebuild,
 # with some exceptions, e.g., ARCH specific flags like "amd64" or "ppc".
 # Not needed if the ebuild doesn't use any USE flags.
-IUSE="gss +modules +server o2ib"
+IUSE="gss +modules +server o2ib +readline +client"
 
 # A space delimited list of portage features to restrict. man 5 ebuild
 # for details.  Usually not needed.
 #RESTRICT="strip"
 
+REQUIRED_USE="
+		client? ( modules )
+		server? ( modules )
+"
 
 # Run-time dependencies. Must be defined to whatever this depends on to run.
 # Example:
@@ -94,16 +98,23 @@ IUSE="gss +modules +server o2ib"
 # had installed on your system when you tested the package.  Then
 # other users hopefully won't be caught without the right version of
 # a dependency.
-RDEPEND="sys-fs/zfs
-		sys-fs/zfs-kmod"
+RDEPEND="
+		sys-fs/zfs
+		sys-fs/zfs-kmod
+		gss? ( sys-apps/keyutils )
+		dev-libs/libnl
+		virtual/awk
+		dev-libs/libyaml
+		readline? ( sys-libs/readline:0 )
+"
 
-		# Build-time dependencies that need to be binary compatible with the system
-		# being built (CHOST). These include libraries that we link against.
-		# The below is valid if the same run-time depends are required to compile.
+# Build-time dependencies that need to be binary compatible with the system
+# being built (CHOST). These include libraries that we link against.
+# The below is valid if the same run-time depends are required to compile.
 DEPEND="${RDEPEND}"
 
-		# Build-time dependencies that are executed during the emerge process, and
-		# only need to be present in the native build system (CBUILD). Example:
+# Build-time dependencies that are executed during the emerge process, and
+# only need to be present in the native build system (CBUILD). Example:
 BDEPEND="app-portage/portage-utils"
 
 src_prepare() {
@@ -117,15 +128,18 @@ src_configure() {
 	# The default, quickest (and preferred) way of running configure is:
 	set_arch_to_kernel
 	local theconf
-	#pathconf+=" --with-linux=/lib/modules/$(uname -r)/build"
 	theconf+=" --with-linux=${KV_DIR}"
-	theconf+=" --with-zfs=/usr/src/zfs-$(qlist -IvC -F "%{PV}" zfs-kmod)"
+	if use server; then
+		theconf+=" --with-zfs=/usr/src/zfs-$(qlist -IvC -F "%{PV}" zfs-kmod)"
+	fi
 	econf \
 		${theconf} \
 		$(use_enable server server) \
 		$(use_enable modules modules) \
 		--disable-ldiskfs \
-		$(usex o2ib '--with-o2ib=' '--with-o2ib=' 'yes' 'no')
+		$(usex o2ib '--with-o2ib=' '--with-o2ib=' 'yes' 'no') \
+		$(usex gss '--enable-gss' '--disable-gss-keyring' '' '') \
+		$(usex client '' '--disable-client' '' '')
 	# You could use something similar to the following lines to
 	# configure your package before compilation.  The "|| die" portion
 	# at the end will stop the build process if the command fails.
@@ -144,7 +158,7 @@ src_configure() {
 
 # The following src_compile function is implemented as default by portage, so
 # you only need to call it, if you need different behaviour.
-#src_compile() {
+src_compile() {
 	# emake is a script that calls the standard GNU make with parallel
 	# building options for speedier builds (especially on SMP systems).
 	# Try emake first.  It might not work for some packages, because
@@ -153,12 +167,12 @@ src_configure() {
 	# visual clue to others that the makefiles have bugs that have been
 	# worked around.
 
-	#emake
-#}
+	emake
+}
 
 # The following src_install function is implemented as default by portage, so
 # you only need to call it, if you need different behaviour.
-#src_install() {
+src_install() {
 	# You must *personally verify* that this trick doesn't install
 	# anything outside of DESTDIR; do this by reading and
 	# understanding the install part of the Makefiles.
@@ -174,7 +188,7 @@ src_configure() {
 	# you also need to specify mandir and infodir, since they were
 	# passed to ./configure as absolute paths (overriding the prefix
 	# setting).
-	#emake \
+	emake install
 	#	prefix="${D}"/usr \
 	#	mandir="${D}"/usr/share/man \
 	#	infodir="${D}"/usr/share/info \
@@ -182,4 +196,5 @@ src_configure() {
 	#	install
 	# Again, verify the Makefiles!  We don't want anything falling
 	# outside of ${D}.
-#}
+	depmod -a
+}
