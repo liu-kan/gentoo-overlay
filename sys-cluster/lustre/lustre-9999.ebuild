@@ -79,7 +79,7 @@ KEYWORDS="~amd64"
 # Comprehensive list of any and all USE flags leveraged in the ebuild,
 # with some exceptions, e.g., ARCH specific flags like "amd64" or "ppc".
 # Not needed if the ebuild doesn't use any USE flags.
-IUSE="gss +modules +server"
+IUSE="gss +modules +server o2ib"
 
 # A space delimited list of portage features to restrict. man 5 ebuild
 # for details.  Usually not needed.
@@ -116,16 +116,16 @@ src_configure() {
 	# Most open-source packages use GNU autoconf for configuration.
 	# The default, quickest (and preferred) way of running configure is:
 	set_arch_to_kernel
-	local pathconf
+	local theconf
 	#pathconf+=" --with-linux=/lib/modules/$(uname -r)/build"
-	pathconf+=" --with-linux=${KV_DIR}"
-	pathconf+=" --with-zfs=/usr/src/zfs-$(qlist -IvC -F "%{PV}" zfs-kmod)"
+	theconf+=" --with-linux=${KV_DIR}"
+	theconf+=" --with-zfs=/usr/src/zfs-$(qlist -IvC -F "%{PV}" zfs-kmod)"
 	econf \
-		${pathconf} \
+		${theconf} \
 		$(use_enable server server) \
 		$(use_enable modules modules) \
-		--disable-ldiskfs
-
+		--disable-ldiskfs \
+		$(usex o2ib '--with-o2ib=' '--with-o2ib=' 'yes' 'no')
 	# You could use something similar to the following lines to
 	# configure your package before compilation.  The "|| die" portion
 	# at the end will stop the build process if the command fails.
