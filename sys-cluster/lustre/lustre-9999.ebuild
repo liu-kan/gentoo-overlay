@@ -17,7 +17,7 @@ EAPI=7
 # inherit lists eclasses to inherit functions from. For example, an ebuild
 # that needs the eautoreconf function from autotools.eclass won't work
 # without the following line:
-#inherit autotools
+inherit git-r3 linux-info
 #
 # Eclasses tend to list descriptions of how to use their functions properly.
 # Take a look at the eclass/ directory for more examples.
@@ -79,7 +79,7 @@ KEYWORDS="~amd64"
 # Comprehensive list of any and all USE flags leveraged in the ebuild,
 # with some exceptions, e.g., ARCH specific flags like "amd64" or "ppc".
 # Not needed if the ebuild doesn't use any USE flags.
-IUSE="gss"
+IUSE="gss +modules +server"
 
 # A space delimited list of portage features to restrict. man 5 ebuild
 # for details.  Usually not needed.
@@ -107,19 +107,25 @@ DEPEND="${RDEPEND}"
 BDEPEND="app-portage/portage-utils"
 
 src_prepare() {
-		default
-		sh autogen.sh
+	default
+	sh autogen.sh
 }
 				# The following src_configure function is implemented as default by portage, so
 				# you only need to call it if you need a different behaviour.
 src_configure() {
 	# Most open-source packages use GNU autoconf for configuration.
 	# The default, quickest (and preferred) way of running configure is:
-	local zfspath
-	if use zfs; then
-		zfspath=/usr/src/zfs-`qlist -IvC -F "%{PV}" zfs-kmod`
-	fi
-	econf use_with zfs $(zfspath)
+	set_arch_to_kernel
+	local pathconf
+	#pathconf+=" --with-linux=/lib/modules/$(uname -r)/build"
+	pathconf+=" --with-linux=${KV_DIR}"
+	pathconf+=" --with-zfs=/usr/src/zfs-$(qlist -IvC -F "%{PV}" zfs-kmod)"
+	econf \
+		${pathconf} \
+		$(use_enable server server) \
+		$(use_enable modules modules) \
+		--disable-ldiskfs
+
 	# You could use something similar to the following lines to
 	# configure your package before compilation.  The "|| die" portion
 	# at the end will stop the build process if the command fails.
