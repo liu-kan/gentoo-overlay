@@ -17,7 +17,7 @@ EAPI=7
 # inherit lists eclasses to inherit functions from. For example, an ebuild
 # that needs the eautoreconf function from autotools.eclass won't work
 # without the following line:
-inherit git-r3 linux-info systemd
+inherit git-r3 linux-info systemd linux-mod
 #
 # Eclasses tend to list descriptions of how to use their functions properly.
 # Take a look at the eclass/ directory for more examples.
@@ -178,7 +178,7 @@ src_install() {
 	# understanding the install part of the Makefiles.
 	# This is the preferred way to install.
 	#emake DESTDIR="${D}" install
-
+	default_src_install
 	# When you hit a failure with emake, do not just use make. It is
 	# better to fix the Makefiles to allow proper parallelization.
 	# If you fail with that, use "emake -j1", it's still better than make.
@@ -188,7 +188,7 @@ src_install() {
 	# you also need to specify mandir and infodir, since they were
 	# passed to ./configure as absolute paths (overriding the prefix
 	# setting).
-	emake install
+	#emake \
 	#	prefix="${D}"/usr \
 	#	mandir="${D}"/usr/share/man \
 	#	infodir="${D}"/usr/share/info \
@@ -196,6 +196,18 @@ src_install() {
 	#	install
 	# Again, verify the Makefiles!  We don't want anything falling
 	# outside of ${D}.
-	depmod -a
-	systemd_dounit "${FILESDIR}"/lustre/scripts/systemd/lnet.service
+	systemd_dounit "${S}"/lustre/scripts/systemd/lnet.service
+}
+
+
+
+pkg_postinst() {
+	linux-mod_pkg_postinst
+	einfo "    configure lent at /etc/lnet.conf before you use it. "
+	einfo ""
+}
+
+pkg_postrm() {
+	# kernel module
+	linux-mod_pkg_postrm
 }
