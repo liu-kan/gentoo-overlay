@@ -17,7 +17,7 @@ EAPI=7
 # inherit lists eclasses to inherit functions from. For example, an ebuild
 # that needs the eautoreconf function from autotools.eclass won't work
 # without the following line:
-inherit git-r3 linux-info
+inherit git-r3 linux-info systemd
 #
 # Eclasses tend to list descriptions of how to use their functions properly.
 # Take a look at the eclass/ directory for more examples.
@@ -102,6 +102,7 @@ RDEPEND="
 		sys-fs/zfs
 		sys-fs/zfs-kmod
 		gss? ( sys-apps/keyutils )
+		gss? ( virtual/krb5 )
 		dev-libs/libnl
 		virtual/awk
 		dev-libs/libyaml
@@ -166,7 +167,6 @@ src_compile() {
 	# use emake -j1 to limit make to a single process.  The -j1 is a
 	# visual clue to others that the makefiles have bugs that have been
 	# worked around.
-
 	emake
 }
 
@@ -197,4 +197,5 @@ src_install() {
 	# Again, verify the Makefiles!  We don't want anything falling
 	# outside of ${D}.
 	depmod -a
+	systemd_dounit "${FILESDIR}"/lustre/scripts/systemd/lnet.service
 }
