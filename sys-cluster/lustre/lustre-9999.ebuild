@@ -100,13 +100,14 @@ REQUIRED_USE="
 # a dependency.
 RDEPEND="
 		sys-fs/zfs
-		sys-fs/zfs-kmod
+		>=sys-fs/zfs-kmod-2.1.5-r1
 		gss? ( sys-apps/keyutils )
 		gss? ( virtual/krb5 )
 		dev-libs/libnl
 		virtual/awk
 		dev-libs/libyaml
 		readline? ( sys-libs/readline:0 )
+		>=sys-devel/binutils-2.38
 "
 
 # Build-time dependencies that need to be binary compatible with the system
