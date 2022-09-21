@@ -79,7 +79,7 @@ KEYWORDS="~amd64"
 # Comprehensive list of any and all USE flags leveraged in the ebuild,
 # with some exceptions, e.g., ARCH specific flags like "amd64" or "ppc".
 # Not needed if the ebuild doesn't use any USE flags.
-IUSE="gss +modules +server o2ib +readline +client"
+IUSE="+gss +modules +server o2ib +readline +client"
 
 # A space delimited list of portage features to restrict. man 5 ebuild
 # for details.  Usually not needed.
@@ -112,13 +112,26 @@ RDEPEND="
 # Build-time dependencies that need to be binary compatible with the system
 # being built (CHOST). These include libraries that we link against.
 # The below is valid if the same run-time depends are required to compile.
-DEPEND="${RDEPEND}"
+DEPEND="
+	${RDEPEND}
+	>=sys-kernel/linux-headers-5.15-r3
+"
+	#>=sys-kernel/linux-headers-5.15
 
 # Build-time dependencies that are executed during the emerge process, and
 # only need to be present in the native build system (CBUILD). Example:
 BDEPEND="app-portage/portage-utils"
 
+pkg_pretend() {
+	linux-info_pkg_setup
+	if kernel_is lt 5 15 59; then
+		die "Tests only passed with kernel version ge 5.15.59"
+	fi
+}
 src_prepare() {
+	local latestTag
+	latestTag=$(git describe --tags  --abbrev=0)
+	git checkout ${latestTag}
 	default
 	sh autogen.sh
 }
@@ -135,9 +148,10 @@ src_configure() {
 	fi
 	econf \
 		${theconf} \
+		$(use_enable client) \
 		$(use_enable server server) \
 		$(use_enable modules modules) \
-		--disable-ldiskfs \
+		--disable-ldiskfs --disable-tests \
 		$(usex o2ib '--with-o2ib=' '--with-o2ib=' 'yes' 'no') \
 		$(usex gss '--enable-gss' '--disable-gss-keyring' '' '') \
 		$(usex client '' '--disable-client' '' '')
@@ -203,7 +217,7 @@ src_install() {
 
 pkg_postinst() {
 	linux-mod_pkg_postinst
-	einfo "    configure lent at /etc/lnet.conf before you use it. "
+	einfo "  configure lent at /etc/lnet.conf before you use it. "
 	einfo ""
 }
 
