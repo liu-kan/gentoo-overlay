@@ -99,8 +99,8 @@ REQUIRED_USE="
 # other users hopefully won't be caught without the right version of
 # a dependency.
 RDEPEND="
-		sys-fs/zfs
-		>=sys-fs/zfs-kmod-2.1.5-r1
+        server? ( sys-fs/zfs )
+        server? ( >=sys-fs/zfs-kmod-2.1.5-r1 )
 		gss? ( sys-apps/keyutils )
 		gss? ( virtual/krb5 )
 		dev-libs/libnl
