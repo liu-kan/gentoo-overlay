@@ -9,6 +9,6 @@
       <email>kan.k.liu@gmail.com</email>
       <name><![CDATA[Kan Liu]]></name>
     </owner>
-    <source type="git">https://gitee.com/liukxyz/gentoo-overlay.git</source>
+    <source type="git">https://github.com/liu-kan/gentoo-overlay.git</source>
   </repo>
 </repositories>

@@ -1,6 +1,6 @@
 # liuk-overlay
 
-liuk overlay is a gentoo overlay repository that I use myself. It may not have the broadest application scenario in mind. The ebuild file for the repository is based on using the systemd system for writing.
+liuk overlay is a gentoo overlay repository that mainly used by myself. It may not take consider about flexible application scenarios. The ebuild files of the repository is only tested with systemd systems.
 
 Usage:
 ```bash
