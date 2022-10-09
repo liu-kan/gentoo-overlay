@@ -44,6 +44,7 @@ RDEPEND="
 	ganesha_fs_lustre? ( sys-cluster/lustre )
 	ganesha_fs_xfs? ( sys-fs/xfsprogs )
 	nfsidmap? ( net-libs/libnfsidmap )
+	net-fs/nfs-utils
 "
 DEPEND="${RDEPEND}
 	sys-devel/bison
@@ -141,6 +142,7 @@ src_configure() {
 src_install() {
 	cmake_src_install
 	if systemd_is_booted; then
+		systemd_newunit "${WORKDIR}"/${P}/src/scripts/systemd/nfs-ganesha-lock.service.el8 nfs-ganesha-lock.service
 		systemd_newunit "${WORKDIR}"/${P}/src/scripts/systemd/nfs-ganesha.service.el7 nfs-ganesha.service
 	fi
 	newinitd "${FILESDIR}"/${PN}.init ${PN}
