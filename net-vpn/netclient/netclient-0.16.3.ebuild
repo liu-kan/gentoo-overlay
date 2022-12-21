@@ -10,9 +10,9 @@ HOMEPAGE="https://netmaker.io"
 EGIT_REPO_URI="https://gitlab.com/liu-kan/netmaker.git"
 #EGIT_REPO_URI="https://github.com/gravitl/netmaker.git"
 git_commit_sha1=74986ff478c23f6110cab04fe61aedbc8a1decb3
-IUSE="+gomoddeps"
+IUSE="-gomod-cache"
 SRC_URI="https://gitlab.com/liu-kan/netmaker/-/archive/v${PV}/${PN}-v${PV}.tar.bz2
-	gomoddeps?   ( https://gitee.com/liukxyz/gentoo-overlay/releases/download/v20221221/${P}-deps.tar.xz )"
+	gomod-cache?   ( https://gitee.com/liukxyz/gentoo-overlay/releases/download/v20221221/${P}-deps.tar.xz )"
 
 LICENSE="SSPL-1"
 S=${WORKDIR}/netmaker-v${PV}-${git_commit_sha1}
@@ -48,8 +48,10 @@ src_compile() {
 	export CGO_ENABLED=0
 	export GOOS=linux
 	export GOARCH=amd64
-	export GO111MODULE=on
-	export GOMODCACHE=${WORKDIR}/go-mod
+	if use gomod-cache ; then
+		export GO111MODULE=on
+		export GOMODCACHE=${WORKDIR}/go-mod
+	fi
 	cd ${S}/netclient
 	ego build -ldflags="-X 'main.version=v${PV}'" -o build/netclient main.go
 }
