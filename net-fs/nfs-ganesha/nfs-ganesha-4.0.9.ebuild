@@ -22,7 +22,7 @@ fi
 LICENSE="LGPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="btrfs caps dbus debug gssapi gui +nfs3 nfsidmap tools vsock"
+IUSE="btrfs caps dbus debug gssapi gui +nfs3 nfsidmap tools vsock +doc"
 FS_SUPPORT=" ceph glusterfs gpfs lustre mem null proxy-v3 proxy-v4 rgw vfs xfs"
 IUSE+=" ${FS_SUPPORT// / ganesha_fs_}"
 
@@ -44,6 +44,7 @@ RDEPEND="
 	ganesha_fs_lustre? ( sys-cluster/lustre )
 	ganesha_fs_xfs? ( sys-fs/xfsprogs )
 	nfsidmap? ( net-libs/libnfsidmap )
+	doc? ( app-doc/doxygen[dot] )
 	net-fs/nfs-utils
 "
 DEPEND="${RDEPEND}
